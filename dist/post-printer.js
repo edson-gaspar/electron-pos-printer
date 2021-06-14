@@ -172,36 +172,36 @@ var PosPrinter = /** @class */ (function () {
      *
     */
     PosPrinter.renderPrintDocument = function (window, data) {
-        var _this = this;
-        return new Promise(function (resolve, reject) {
-            data.forEach(function (line, lineIndex) { return __awaiter(_this, void 0, void 0, function () {
-                return __generator(this, function (_a) {
-                    switch (_a.label) {
-                        case 0:
-                            if (line.type === 'image' && !line.path) {
-                                window.close();
-                                reject(new Error('An Image path is required for type image').toString());
-                                return [2 /*return*/];
-                            }
-                            return [4 /*yield*/, sendIpcMsg('render-line', window.webContents, { line: line, lineIndex: lineIndex })
-                                    .then(function (result) {
-                                    if (!result.status) {
-                                        window.close();
-                                        reject(result.error);
-                                        return;
-                                    }
-                                }).catch(function (error) {
-                                    reject(error);
-                                    return;
-                                })];
-                        case 1:
-                            _a.sent();
-                            return [2 /*return*/];
-                    }
-                });
-            }); });
-            // when the render process is done rendering the page, resolve
-            resolve({ message: 'page-rendered' });
+        return __awaiter(this, void 0, void 0, function () {
+            var lineIndex, line, result;
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0:
+                        lineIndex = 0;
+                        _a.label = 1;
+                    case 1:
+                        if (!(lineIndex < data.length)) return [3 /*break*/, 4];
+                        line = data[lineIndex];
+                        if (line.type === 'image' && !line.path) {
+                            window.close();
+                            throw new Error('An Image path is required for type image').toString();
+                        }
+                        return [4 /*yield*/, sendIpcMsg('render-line', window.webContents, { line: line, lineIndex: lineIndex })];
+                    case 2:
+                        result = _a.sent();
+                        if (!result.status) {
+                            window.close();
+                            throw result.error;
+                        }
+                        _a.label = 3;
+                    case 3:
+                        lineIndex++;
+                        return [3 /*break*/, 1];
+                    case 4: 
+                    // when the render process is done rendering the page, resolve
+                    return [2 /*return*/, { message: 'page-rendered' }];
+                }
+            });
         });
     };
     return PosPrinter;

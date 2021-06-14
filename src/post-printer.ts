@@ -117,29 +117,21 @@ export class PosPrinter {
      * @description Render the print data in the render process 
      * 
     */
-    private static renderPrintDocument(window: any, data: PosPrintData[]): Promise<any> {
-        return new Promise((resolve, reject) => {
-            data.forEach(async (line, lineIndex) => {
-                if (line.type === 'image' && !line.path) {
-                    window.close();
-                    reject(new Error('An Image path is required for type image').toString());
-                    return;
-                }
-                await sendIpcMsg('render-line', window.webContents, {line, lineIndex})
-                    .then((result: any) => {
-                        if (!result.status) {
-                            window.close();
-                            reject(result.error);
-                            return;
-                        }
-                    }).catch((error) => {
-                        reject(error);
-                        return;
-                    });
-            });
-            // when the render process is done rendering the page, resolve
-            resolve({message: 'page-rendered'});
-        })
+    private static async renderPrintDocument(window: any, data: PosPrintData[]): Promise<any> {
+        for (let lineIndex = 0; lineIndex < data.length; lineIndex++) {
+            const line = data[lineIndex];
+            if (line.type === 'image' && !line.path) {
+                window.close();
+                throw new Error('An Image path is required for type image').toString();
+            }
+            const result: any = await sendIpcMsg('render-line', window.webContents, {line, lineIndex})
+            if (!result.status) {
+                window.close();
+                throw result.error;
+            }
+        }
+        // when the render process is done rendering the page, resolve
+        return {message: 'page-rendered'};
     } 
 }
 /**
